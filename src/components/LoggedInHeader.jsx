@@ -63,7 +63,7 @@ export default function LoggedInHeader() {
           <li className="nav-item">
             <a className="nav-link" aria-current="page" href={`/profile/${user_email}`} id="home"  >My Profile</a>
           </li>
-          <li className='nav-item'><a className="nav-link" href="/notifications"  id="notifications"  >Notifications</a></li><li><hr className="dropdown-divider"/></li>
+          <li className='nav-item'><a className="nav-link" href="/notifications"  id="notifications"  >Notifications</a></li>
           <li className="nav-item dropdown">
             <a className="nav-link dropdown-toggle" href='#' role='button' data-bs-toggle = 'dropdown' aria-expanded='false'>Job Board</a>
             <ul className='dropdown-menu'>
@@ -87,7 +87,6 @@ export default function LoggedInHeader() {
               <li><a className='dropdown-item' href='/viewResponses'id='myProfile'>Your requests</a></li>
             </ul>
           </li>
-          <li className='nav-item'><a className="nav-link" href="/event-calender"  id="event-calender"  >Event Calender</a></li>
           <li className="nav-item dropdown">
             <a className="nav-link dropdown-toggle" href='#' role='button' data-bs-toggle = 'dropdown' aria-expanded='false'>Resource Hub</a>
             <ul className='dropdown-menu'>
@@ -95,10 +94,7 @@ export default function LoggedInHeader() {
               <li><a className='dropdown-item' href='/JIResources'id='myProfile'>Job/Internship related</a></li>
             </ul>
           </li>
-          <li className='nav-item'><a className="nav-link" href="/alumni-stories"  id="alumni-stories"  >Alumni Stories</a></li>
-          <li className="nav-item">
-            <a className="nav-link" aria-current="page" href="/messaging" id="messaging"    >Messaging</a>
-          </li>
+          <li className='nav-item'><a className="nav-link" href="/existingChat"  id="messaging"  >Messaging</a></li>
           <li className="nav-item">
             <a className="nav-link cursor-pointer" aria-current="page" onClick={handleLogout}   id='logout' href ='/signin'>Logout</a>
           </li>

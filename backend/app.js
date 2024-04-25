@@ -192,6 +192,19 @@ const ItemSchema = new mongoose.Schema({
 
 const Item = mongoose.model('Item' , ItemSchema)
 
+const MessageSchema = new mongoose.Schema({
+  users : {
+    type : Array,
+    required : true
+  },
+  content : {
+    type : Array ,
+    default : []
+  }
+})
+
+const Message = mongoose.model('Message' , MessageSchema)
+
 const app=express()
 
 app.use(cors())
@@ -553,7 +566,7 @@ app.get("/search" , async (req , res) => {
 
   try{
     // Use a regular expression to perform a case-insensitive search for the name substring
-    const users = await User.find({ name: { $regex: query, $options: 'i' } })
+    const users = await (User.find({ name: { $regex: query, $options: 'i' } })).find({ approvedByAdmin : true })
 
     res.status(201).send({
       message : `Search Request fulfilled` , 
@@ -875,4 +888,213 @@ app.put("/updateResolvedStatus" , async(req, res) => {
 app.post('/collegeResources' , async(req,res) => {
   app.use(bodyParser.urlencoded({ extended: true })); 
   console.log(req.body)
+})
+
+app.post('/findExistingUsers' , async(req, res) => {
+
+  const { user_email , search } = req.body
+
+  try{
+
+    const all_users = await User.find({})
+    const all_chats = await Message.find({})
+    const users_from_search = await User.find({ name: { $regex: search, $options: 'i' } })
+
+    // console.log(users_from_search.length)
+
+    let users = []
+
+    all_users.map((user) => {
+      if(user.email != user_email) {
+        let flag = 0
+        all_chats.map((chat) => {
+          if((chat.users[0].email == user_email || chat.users[1].email == user_email) && (chat.users[0].email == user.email || chat.users[1].email == user.email))[
+            flag = 1
+          ]
+        })
+
+        if(flag) {
+          flag = 0
+          users_from_search.map((y) => {
+            if(y.email == user.email){
+              flag = 1
+            }
+          })
+          if(flag){
+            users.push(user)
+          }
+        }
+      }
+    })
+
+    // console.log(users.length)
+
+    res.status(201).send({
+      message : 'Retrieved users',
+      users
+    })
+  }
+  catch(error){
+    console.log(error)
+    res.status(500).send({
+      message : 'Internal Server Error'
+    })
+  }
+})
+
+app.post('/findNewUsers' , async(req, res) => {
+
+  const { user_email , search } = req.body
+
+  try{
+
+    const all_users = await User.find({})
+    const all_chats = await Message.find({})
+    const users_from_search = await User.find({ name: { $regex: search, $options: 'i' } }).find({ approvedByAdmin : true})
+
+    // console.log(users_from_search.length)
+
+    let users = users_from_search
+    for(let i = 0 ; i < users.length ; i ++){
+      if(users[i].email == user_email){
+        users.splice(i , 1)
+      }
+    }
+
+    // all_users.map((user) => {
+    //   if(user.email != user_email) {
+    //     let flag = 1
+    //     all_chats.map((chat) => {
+    //       if((chat.users[0].email == user_email || chat.users[1].email == user_email) && (chat.users[0].email == user.email || chat.users[1].email == user.email))[
+    //         flag = 0
+    //       ]
+    //     })
+
+    //     if(flag) {
+    //       flag = 0
+    //       users_from_search.map((y) => {
+    //         if(y.email == user.email){
+    //           flag = 1
+    //         }
+    //       })
+    //       if(flag){
+    //         users.push(user)
+    //       }
+    //     }
+    //   }
+    // })
+
+    // console.log(users.length)
+
+    res.status(201).send({
+      message : 'Retrieved users',
+      users
+    })
+  }
+  catch(error){
+    console.log(error)
+    res.status(500).send({
+      message : 'Internal Server Error'
+    })
+  }
+})
+
+app.post("/Chat" , async(req,res) => {
+
+  const {user_email , friend} = req.body
+
+  try{
+
+    let chat_array = []
+    let flag = 0
+    let id
+
+    const all_chats = await Message.find({})
+    const user = await User.find({ email : user_email })
+    let friend_user = await User.find({ email : friend })
+
+    all_chats.map((chat) => {
+      if((chat.users[0].email == user_email || chat.users[1].email == user_email) && (chat.users[0].email == friend || chat.users[1].email == friend)){
+        flag = 1
+        chat_array = chat.content
+        id = chat._id
+      }
+    })
+
+    friend_user = friend_user[0]
+
+    if(!flag){
+
+      const New_chat = new Message({
+        users : [user[0] , friend_user],
+        content : [],
+        friend_user
+      })
+
+      const new_chat = await New_chat.save()
+      const id = new_chat._id
+
+      res.status(201).send({
+        message : 'New chat created...',
+        chat_array : [],
+        friend_user,
+        id
+      })
+    }
+
+    else{
+      res.status(201).send({
+        message : 'Chat retrieved...',
+        chat_array,
+        friend_user,
+        id
+      })
+    }
+
+  }
+  catch(error){
+    console.log(error)
+    res.status(500).send({
+      message : 'Internal Server Error'
+    })
+  } 
+})
+
+app.post("/addMessage" , async (req, res) => {
+
+  const {friend_user , user_email , message , id} = req.body
+
+  try{
+
+    const user = await User.findOne({ email : user_email })
+    const msg = await Message.findOne({ _id : id })
+    
+    msg.content= [{
+      sender : user,
+      receiver : friend_user,
+      body : message
+    } , ...msg.content]
+
+    await Message.findOneAndDelete({ _id : id })
+
+    const new_msg = new Message({
+      users : msg.users,
+      content : msg.content,
+    })
+
+    const response = await new_msg.save()
+
+    res.status(201).send({
+      message : 'Message added...',
+      response
+    })
+
+  }
+  catch(error){
+    console.log(error)
+    res.status(500).send({
+      message : 'Internal Server Error'
+    })
+  }
+
 })

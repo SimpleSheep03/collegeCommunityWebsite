@@ -20,7 +20,7 @@ function SearchResults() {
                         <div className="card-body">
                         <h5 className="card-title">{user.name}</h5>
                         <p className="card-text">{user.about}</p>
-                        <a href={`/profile/${user.email}`} className="btn btn-primary">View profile</a>
+                        <a href={`/profile/${user.email}`} className="btn btn-outline-dark">View profile</a>
                         </div>
                     </div>
                 ))}

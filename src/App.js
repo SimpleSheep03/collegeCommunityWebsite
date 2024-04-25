@@ -17,6 +17,9 @@ import ReportItem from "./pages/ReportItem.jsx";
 import ViewItems from "./pages/ViewItems.jsx";
 import YourItems from "./pages/YourItems.jsx";
 import CollegeResources from "./pages/CollegeResources.jsx";
+import ExistingChat from "./pages/ExistingChat.jsx"
+import Chat from "./pages/Chat.jsx";
+import NewChat from "./pages/NewChat.jsx"
 
 function App() { 
   return (
@@ -38,6 +41,9 @@ function App() {
       <Route path="/viewItems" element = {<ViewItems/>}></Route>
       <Route path="/yourItems" element = {<YourItems/>}></Route>
       <Route path="/collegeResources" element = {<CollegeResources/>}></Route>
+      <Route path="/Chat/:friend" element ={<Chat/>}></Route>
+      <Route path="/existingChat" element ={<ExistingChat/>}></Route>
+      <Route path="/newChat" element ={<NewChat/>}></Route>
       </Routes>
     </BrowserRouter>
   );
