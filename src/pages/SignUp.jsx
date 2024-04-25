@@ -35,7 +35,7 @@ export default function () {
 
           const data = await response.json()
           
-          alert(`User registered successfully`)
+          alert(`${data.message}`)
           navigate('/signin')
           window.location.reload()
 

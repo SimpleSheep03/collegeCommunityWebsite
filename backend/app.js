@@ -44,6 +44,10 @@ const UserSchema = new mongoose.Schema({
   alumnus : {
     type : Boolean,
     required : true
+  },
+  approvedByAdmin : {
+    type : Boolean,
+    default : false
   }
 })
 
@@ -188,52 +192,6 @@ const ItemSchema = new mongoose.Schema({
 
 const Item = mongoose.model('Item' , ItemSchema)
 
-const ProgramSchema = new mongoose.Schema({
-  name : {
-    type : String,
-    required : true
-  }
-})
-
-const Progarm = mongoose.model('Program' , ProgramSchema)
-
-const SemesterSchema = new mongoose.Schema({
-  program : {
-    type : Object,
-    required : true
-  },
-  number : {
-    type : Number,
-    required : true
-  }
-})
-
-const Semester = mongoose.model('Semester' , SemesterSchema)
-
-const SubjectSchema = new mongoose.Schema({
-  name : {
-    type : String,
-    required : true
-  },
-  semester : {
-    type : Object,
-    required : true
-  }
-})
-
-const Subject = mongoose.model('Subject' , SubjectSchema)
-
-const ResourceSchema = new mongoose.Schema({
-  name : {
-    type : String,
-    required : true
-  },
-  subject : {
-    type : Object
-  }
-
-})
-
 const app=express()
 
 app.use(cors())
@@ -273,7 +231,7 @@ app.post("/auth/create-user" , async (req,res) => {
       const result = await user.save();
       
       return res.status(201).send({
-        message: "User created successfully",
+        message: "Details submitted successfully, to be verified by the admin...",
         user: result,
       });
     } catch (error) {
@@ -311,8 +269,14 @@ app.post("/auth/signin" , async (req, res) => {
       })
     }
 
+    if(!user.approvedByAdmin){
+      return res.status(401).send({
+        message : 'Login denied till details are verified..'
+      })
+    }
+
     return res.status(200).send({
-      message : 'User logged in  successfully',
+      message : 'User logged in successfully',
       user : user
     })
   }

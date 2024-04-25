@@ -138,7 +138,7 @@ export default function TrackBloodRequests() {
             <span className=''>Time requested : <span className='fw-bold'>{request.timeRequested.substr(0,10)}</span></span>
             <span className=''>Request Fulfilled : <span className='fw-bold'>{request.fulfilled ? 'Yes' : 'No'}</span></span>
             {user_email !== request.userRequested.email && !request.fulfilled && <button className='ms-5 btn btn-outline-danger' onClick={(e) => handleDonatation(e , request._id , index)}>Donate Blood</button>}
-            {request.fulfilled && <span className=''>Donated User : <a href="#" className="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">{request.userDonated.name}</a></span>}
+            {request.fulfilled && <span className=''>Donated User : <a href={"http://localhost:3000/profile/" + `${request.userDonated.email}`} className="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">{request.userDonated.name}</a></span>}
             <div className='text-center mt-2'>
               <div className="btn-group">
                 <button type="button" className="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
